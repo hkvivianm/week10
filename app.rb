@@ -79,6 +79,16 @@ end
 post "/rsvps/:id/update" do
     puts "params: #{params}"
 
+    @rsvp = rsvps_table.where(id: params["id"]).to_a[0]
+    @event = events_table.where(id: @rsvp).to_a[0]
+    if @current_user && @current_user[:id] == @rsvp[:id]
+    rsvps_table.where(
+        id:params["id"]).update(
+        comments: params["comments"],
+        going: params["going"]
+    ).update(going:0)
+    else
+        view "error"
     view "update_rsvp"
 end
 
@@ -102,6 +112,11 @@ end
 post "/users/create" do
     puts "params: #{params}"
 
+    existing_user=users_table.email.where(email:params["email"]).to_a[0]
+    if 
+        existing_user
+    view "error"
+    
     users_table.insert(
         name: params["name"],
         email: params["email"],
